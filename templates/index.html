@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>INCREDIBLE BANK</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Incredible Bank Logo" width="120" style="display: block; margin: auto;">
+
+
+
+        <h1 style="color: orange;">🌟 Welcome to INCREDIBLE BANK🌟</h1>
+
+        <a href="/signup"><button>Sign Up</button></a>
+        <a href="/login"><button>Login</button></a>
+    </div>
+</body>
+</html>
