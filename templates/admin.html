@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+        h1, h2 { color: orange; }
+    </style>
+</head>
+<body>
+    <h1>👨‍💼 Admin Dashboard</h1>
+
+    <h2>Registered Users</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Balance (₹)</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.balance }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Recent Transactions</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>User ID</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Date/Time</th>
+        </tr>
+        {% for txn in transactions %}
+        <tr>
+            <td>{{ txn.id }}</td>
+            <td>{{ txn.user_id }}</td>
+            <td>{{ txn.type }}</td>
+            <td>₹{{ txn.amount }}</td>
+            <td>{{ txn.timestamp }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
