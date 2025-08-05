@@ -56,7 +56,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password, password_input):
             session['user_id'] = user.id
 
-            #  Log IP and hostname within request context
+            # Logging IP and host safely
             ip = request.remote_addr
             hostname = socket.gethostname()
             print(f"User '{username}' logged in from {ip} ({hostname})")
@@ -122,7 +122,7 @@ def logout():
 @app.route('/admin/users')
 def list_users():
     users = User.query.all()
-    return "<br>".join([f"{u.id}: {u.username}, Balance: ₹{u.balance}" for u in users])    
+    return "<br>".join([f"{u.id}: {u.username}, Balance: ₹{u.balance}" for u in users])
 
 @app.route('/admin')
 def admin():
@@ -130,7 +130,7 @@ def admin():
         return redirect(url_for('login'))
 
     user = User.query.get(session['user_id'])
-    if user.username != "Charan968":  # Only allow your login
+    if user.username != "Charan968":
         return "Unauthorized Access"
 
     users = User.query.all()
@@ -138,6 +138,7 @@ def admin():
     return render_template('admin.html', users=users, transactions=transactions)
 
 # ------------------ Start App ------------------
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
