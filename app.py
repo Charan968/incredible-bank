@@ -120,6 +120,18 @@ def list_users():
 ip = request.remote_addr
 hostname = socket.gethostname()
 print(f"User {username} logged in from {ip} ({hostname})")
+@app.route('/admin')
+def admin():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    if user.username != "Charan968":  # Only allow your login
+        return "Unauthorized Access"
+
+    users = User.query.all()
+    transactions = Transaction.query.order_by(Transaction.timestamp.desc()).all()
+    return render_template('admin.html', users=users, transactions=transactions)
 
 
 # ------------------ Start App ------------------
