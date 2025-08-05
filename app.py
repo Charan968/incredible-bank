@@ -130,8 +130,9 @@ def admin():
         return redirect(url_for('login'))
 
     user = User.query.get(session['user_id'])
-    if user.username != "Charan968":
-        return "Unauthorized Access"
+    if user.username.strip().lower() != "charan968":
+    return "Unauthorized Access"
+
 
     users = User.query.all()
     transactions = Transaction.query.order_by(Transaction.timestamp.desc()).all()
