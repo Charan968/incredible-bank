@@ -131,7 +131,7 @@ def admin():
 
     user = User.query.get(session['user_id'])
     if user.username.strip().lower() != "charan968":
-    return "Unauthorized Access"
+       return "Unauthorized Access"
 
 
     users = User.query.all()
