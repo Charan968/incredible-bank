@@ -8,32 +8,38 @@ import os
 import socket
 
 app = Flask(__name__)
-app.secret_key = "secret123"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+app.secret_key = "secret123"  # Secret key for session encryption
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite3'  # SQLite DB configuration
 
-# ------------------ Models ------------------
+# Initialize extensions
+db = SQLAlchemy(app)  # For database interaction
+bcrypt = Bcrypt(app)  # For hashing passwords
 
+# ------------------ Database Models ------------------
+
+# User table to store login info and balance
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True)
     password = db.Column(db.String(100))
     balance = db.Column(db.Float, default=0.0)
 
+# Transaction table to store all transactions
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
-    type = db.Column(db.String(10))
+    type = db.Column(db.String(10))  # 'Deposit' or 'Withdraw'
     amount = db.Column(db.Float)
     timestamp = db.Column(db.DateTime, default=datetime.now)
 
 # ------------------ Routes ------------------
 
+# Homepage
 @app.route('/')
 def index():
     return render_template('index.html')
 
+# Signup route - register new user
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -47,6 +53,7 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
+# Login route - user authentication
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -55,10 +62,17 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and bcrypt.check_password_hash(user.password, password_input):
             session['user_id'] = user.id
+
+            # Log login info (IP and hostname)
+            ip = request.remote_addr
+            hostname = socket.gethostname()
+            print(f"User '{username}' logged in from {ip} ({hostname})")
+
             return redirect(url_for('dashboard'))
         return "Invalid credentials"
     return render_template('login.html')
 
+# Dashboard - for deposit, withdraw, view statement
 @app.route('/dashboard', methods=['GET', 'POST'])
 def dashboard():
     if 'user_id' not in session:
@@ -66,7 +80,6 @@ def dashboard():
 
     user = User.query.get(session['user_id'])
     transactions = Transaction.query.filter_by(user_id=user.id).order_by(Transaction.timestamp.desc()).all()
-
 
     if request.method == 'POST':
         action = request.form['action']
@@ -86,6 +99,7 @@ def dashboard():
 
     return render_template('dashboard.html', user=user, transactions=transactions)
 
+# Download transaction statement as PDF
 @app.route('/download_statement')
 def download_statement():
     if 'user_id' not in session:
@@ -109,34 +123,35 @@ def download_statement():
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="transaction_statement.pdf", mimetype='application/pdf')
 
+# Logout user
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
+
+# Show all users (for admin)
 @app.route('/admin/users')
 def list_users():
     users = User.query.all()
-    return "<br>".join([f"{u.id}: {u.username}, Balance: ₹{u.balance}" for u in users])    
-ip = request.remote_addr
-hostname = socket.gethostname()
-print(f"User {username} logged in from {ip} ({hostname})")
+    return "<br>".join([f"{u.id}: {u.username}, Balance: ₹{u.balance}" for u in users])
+
+# Admin dashboard with all users and transactions
 @app.route('/admin')
 def admin():
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
     user = User.query.get(session['user_id'])
-    if user.username != "Charan968":  # Only allow your login
+    if user.username != "Charan968":  # Allow only you as admin
         return "Unauthorized Access"
 
     users = User.query.all()
     transactions = Transaction.query.order_by(Transaction.timestamp.desc()).all()
     return render_template('admin.html', users=users, transactions=transactions)
 
-
-# ------------------ Start App ------------------
+# ------------------ App Start ------------------
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()
+        db.create_all()  # Create tables if not exist
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port)  # Run on all interfaces for Render deployment
