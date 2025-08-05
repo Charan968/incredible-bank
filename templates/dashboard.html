@@ -7,7 +7,6 @@
 <body>
     <div class="container">
         <h2>Welcome to Incredible Bank, {{ user.username }}!</h2>
-
         <h3>Balance: ₹{{ user.balance }}</h3>
 
         <form method="POST">
@@ -16,16 +15,21 @@
             <button type="submit" name="action" value="withdraw">Withdraw</button>
         </form>
 
-        <h3>your bank Statement </h3>
+        <h3>Your Bank Statement</h3>
         <div style="max-height: 300px; overflow-y: auto;">
-  <ul>
-    {% for txn in transactions %}
-        <li>{{ txn.timestamp.strftime('%Y-%m-%d %H:%M') }} - {{ txn.type }} ₹{{ txn.amount }}</li>
-    {% endfor %}
-  </ul>
-</div>
+            <ul>
+                {% for txn in transactions %}
+                    <li>{{ txn.timestamp.strftime('%Y-%m-%d %H:%M') }} - {{ txn.type }} ₹{{ txn.amount }}</li>
+                {% endfor %}
+            </ul>
+        </div>
 
         <a href="/download_statement"><button>📄 Download PDF</button></a><br><br>
+
+        {% if user.username.strip().lower() == 'charan968' %}
+            <a href="{{ url_for('admin') }}"><button>🔐 Admin Panel</button></a><br><br>
+        {% endif %}
+
         <a href="/logout"><button>Logout</button></a>
     </div>
 </body>
