@@ -5,6 +5,7 @@ from datetime import datetime
 from reportlab.pdfgen import canvas
 import io
 import os
+import socket
 
 app = Flask(__name__)
 app.secret_key = "secret123"
@@ -112,6 +113,14 @@ def download_statement():
 def logout():
     session.pop('user_id', None)
     return redirect(url_for('login'))
+@app.route('/admin/users')
+def list_users():
+    users = User.query.all()
+    return "<br>".join([f"{u.id}: {u.username}, Balance: ₹{u.balance}" for u in users])    
+ip = request.remote_addr
+hostname = socket.gethostname()
+print(f"User {username} logged in from {ip} ({hostname})")
+
 
 # ------------------ Start App ------------------
 if __name__ == '__main__':
